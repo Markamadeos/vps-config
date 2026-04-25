@@ -146,6 +146,24 @@ else
     log "Docker уже есть: $(docker --version | cut -d' ' -f3 | tr -d ',')"
 fi
 
+# Compose plugin
+if ! docker compose version &>/dev/null 2>&1; then
+    log "Устанавливаю docker-compose-plugin..."
+    apt-get install -y -qq docker-compose-plugin 2>/dev/null \
+        || apt-get install -y -qq docker-compose 2>/dev/null \
+        || die "Не удалось установить docker compose"
+fi
+
+# Определяем команду compose
+if docker compose version &>/dev/null 2>&1; then
+    DC="docker compose"
+elif command -v docker-compose &>/dev/null; then
+    DC="docker-compose"
+else
+    die "docker compose не найден"
+fi
+log "Compose: $($DC version --short 2>/dev/null || $DC version)"
+
 # ──────────────────────────────────────────────────────
 section "7 / AmneziaWG"
 # ──────────────────────────────────────────────────────
@@ -258,8 +276,8 @@ else
 fi
 
 cd "$AWG_DIR"
-docker compose pull
-docker compose up -d
+$DC pull
+$DC up -d
 log "AmneziaWG запущен"
 
 # ──────────────────────────────────────────────────────
