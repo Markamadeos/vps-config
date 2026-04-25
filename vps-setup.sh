@@ -258,6 +258,7 @@ else
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 fi
 
+set -x
 docker rm -f amneziawg 2>/dev/null || true
 docker pull "$AWG_IMAGE"
 docker run -d \
@@ -271,6 +272,7 @@ docker run -d \
     -v "$AWG_DIR/config:/etc/wireguard" \
     -p "${AWG_PORT}:${AWG_PORT}/udp" \
     "$AWG_IMAGE"
+set +x
 log "AmneziaWG запущен"
 
 # ──────────────────────────────────────────────────────
