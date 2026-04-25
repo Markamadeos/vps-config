@@ -97,7 +97,7 @@ ClientAliveCountMax 2
 AllowUsers $USERNAME
 EOF
 
-systemctl restart sshd
+systemctl restart ssh 2>/dev/null || systemctl restart sshd
 log "SSHD перезапущен на порту $SSH_PORT"
 
 # ──────────────────────────────────────────────────────
