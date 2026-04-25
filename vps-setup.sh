@@ -258,7 +258,7 @@ else
 fi
 
 cd "$AWG_DIR"
-docker compose pull -q
+docker compose pull
 docker compose up -d
 log "AmneziaWG запущен"
 
