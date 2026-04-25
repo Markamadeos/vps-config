@@ -146,23 +146,6 @@ else
     log "Docker уже есть: $(docker --version | cut -d' ' -f3 | tr -d ',')"
 fi
 
-# Compose plugin
-if ! docker compose version &>/dev/null 2>&1; then
-    log "Устанавливаю docker-compose-plugin..."
-    apt-get install -y -qq docker-compose-plugin 2>/dev/null \
-        || apt-get install -y -qq docker-compose 2>/dev/null \
-        || die "Не удалось установить docker compose"
-fi
-
-# Определяем команду compose
-if docker compose version &>/dev/null 2>&1; then
-    DC="docker compose"
-elif command -v docker-compose &>/dev/null; then
-    DC="docker-compose"
-else
-    die "docker compose не найден"
-fi
-log "Compose: $($DC version --short 2>/dev/null || $DC version)"
 
 # ──────────────────────────────────────────────────────
 section "7 / AmneziaWG"
@@ -275,9 +258,19 @@ else
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 fi
 
-cd "$AWG_DIR"
-$DC pull
-$DC up -d
+docker rm -f amneziawg 2>/dev/null || true
+docker pull "$AWG_IMAGE"
+docker run -d \
+    --name amneziawg \
+    --restart unless-stopped \
+    --cap-add NET_ADMIN \
+    --cap-add SYS_MODULE \
+    --sysctl net.ipv4.conf.all.src_valid_mark=1 \
+    --sysctl net.ipv4.ip_forward=1 \
+    --device /dev/net/tun:/dev/net/tun \
+    -v "$AWG_DIR/config:/etc/wireguard" \
+    -p "${AWG_PORT}:${AWG_PORT}/udp" \
+    "$AWG_IMAGE"
 log "AmneziaWG запущен"
 
 # ──────────────────────────────────────────────────────
