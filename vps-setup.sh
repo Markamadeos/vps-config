@@ -28,8 +28,8 @@ AWG_CLIENT_ADDR="10.8.0.2/32"
 DNS="1.1.1.1,1.0.0.1"
 # ════════════════════════════════════════════════════════
 
-SERVER_IP=$(curl -sf https://ifconfig.me 2>/dev/null \
-         || curl -sf https://icanhazip.com 2>/dev/null \
+SERVER_IP=$(curl -4 -sf https://ifconfig.me 2>/dev/null \
+         || curl -4 -sf https://icanhazip.com 2>/dev/null \
          || die "Не удалось определить публичный IP")
 log "Публичный IP: $SERVER_IP"
 
